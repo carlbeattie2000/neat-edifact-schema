@@ -1,55 +1,56 @@
 {
-	"name": "neat-edifact-parser",
-	"version": "0.1.0",
-	"type": "module",
-	"description": "Schema-based EDIFACT message mapper for neat-edifact. Define a schema, get back structured data.",
-	"main": "./dist/index.js",
-	"types": "./dist/index.d.ts",
-	"exports": {
-		".": {
-			"import": "./dist/index.js",
-			"types": "./dist/index.d.ts"
-		}
-	},
-	"files": [
-		"dist"
-	],
-	"scripts": {
-		"test": "vitest",
-		"build": "tsc -p tsconfig.build.json"
-	},
-	"keywords": [
-		"edifact",
-		"edi",
-		"schema",
-		"mapper",
-		"typescript",
-		"un/edifact",
-		"neat-edifact",
-		"baplie",
-		"coprar",
-		"shipping",
-		"logistics",
-		"segment-groups"
-	],
-	"author": "Carl Beattie",
-	"license": "ISC",
-	"packageManager": "pnpm@10.18.3",
-	"devDependencies": {
-		"@eslint/compat": "^2.0.5",
-		"@eslint/eslintrc": "^3.3.5",
-		"@eslint/js": "^9",
-		"@types/node": "^25.6.0",
-		"eslint": "^9",
-		"eslint-config-airbnb-extended": "^3.1.0",
-		"globals": "^17.5.0",
-		"jiti": "^2.6.1",
-		"tsx": "^4.21.0",
-		"typescript": "^6.0.3",
-		"typescript-eslint": "^8.59.0",
-		"vitest": "^4.1.5"
-	},
-	"dependencies": {
-		"neat-edifact": "^0.1.1"
-	}
+  "name": "neat-edifact-parser",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Schema-based EDIFACT message mapper for neat-edifact. Define a schema, get back structured data.",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "test": "vitest",
+    "build": "tsc -p tsconfig.build.json",
+    "dev": "nodemon --exec tsx src/index.ts --ext ts"
+  },
+  "keywords": [
+    "edifact",
+    "edi",
+    "schema",
+    "mapper",
+    "typescript",
+    "un/edifact",
+    "neat-edifact",
+    "baplie",
+    "coprar",
+    "shipping",
+    "logistics",
+    "segment-groups"
+  ],
+  "author": "Carl Beattie",
+  "license": "ISC",
+  "packageManager": "pnpm@10.18.3",
+  "devDependencies": {
+    "@eslint/compat": "^2.0.5",
+    "@eslint/eslintrc": "^3.3.5",
+    "@eslint/js": "^9",
+    "@types/node": "^25.6.0",
+    "eslint": "^9",
+    "eslint-config-airbnb-extended": "^3.1.0",
+    "globals": "^17.5.0",
+    "jiti": "^2.6.1",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.59.0",
+    "vitest": "^4.1.5"
+  },
+  "dependencies": {
+    "neat-edifact": "^0.1.1"
+  }
 }

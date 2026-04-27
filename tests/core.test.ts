@@ -4,7 +4,7 @@ import EdifactDocument from '../src/document/index.js';
 import { defineSchema, segment } from '../src/schema/define.js';
 
 const EXAMPLE_EDIFACT = `
-UNB+UNOA:2+RECIPIENTID:SENDERID+241101:0930+TR000001'
+UNB+UNOA:2+RECIPIENTID+SENDERID+241101:0930+TR000001'
 UNH+1+BAPLIE:D:96A:UN:4.0'
 BGM+241+STOW123+9'
 DTM+137:202411011200:203'
@@ -35,6 +35,6 @@ describe('Parser.split', () => {
       schema,
     );
 
-    console.log(document.interchanges);
+    console.log(document.map());
   });
 });
