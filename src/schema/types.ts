@@ -26,4 +26,6 @@ export interface DefineSchema {
   groups?: GroupDefinition[];
 
   transform?: <T>(segment: MappedSegment) => T;
+
+  strict?: boolean;
 }

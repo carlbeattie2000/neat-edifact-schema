@@ -1,5 +1,7 @@
 import type { MapperOptions } from './mapper_options.js';
 import type EdifactSchema from '../schema/index.js';
+import type { Message } from 'neat-edifact';
+import type MappedMessage from './mapped_message.js';
 
 export default class Mapper {
   #schema: EdifactSchema;
@@ -14,5 +16,8 @@ export default class Mapper {
       caseInsensitiveQualifiers: options?.caseInsensitiveQualifiers ?? false,
       maxScanDistance: options?.maxScanDistance ?? 1000,
     };
+  }
+
+  public map(message: Message): MappedMessage {
   }
 }

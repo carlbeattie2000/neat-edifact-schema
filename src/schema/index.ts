@@ -10,6 +10,8 @@ export default class EdifactSchema {
 
   public transform: <T>(segment: MappedSegment) => T;
 
+  public strict: boolean;
+
   static #defaultTransformFunction<T>(segment: MappedSegment): T {
     return segment as T;
   }
@@ -19,5 +21,7 @@ export default class EdifactSchema {
     this.groups = options.groups ?? [];
 
     this.transform = options?.transform ?? EdifactSchema.#defaultTransformFunction;
+
+    this.strict = options.strict ?? false;
   }
 }
