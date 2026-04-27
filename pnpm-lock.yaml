@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      neat-edifact:
+        specifier: ^0.1.1
+        version: 0.1.1
     devDependencies:
       '@eslint/js':
         specifier: ^10.0.1
@@ -774,6 +778,9 @@ packages:
 
   natural-compare@1.4.0:
     resolution: {integrity: sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==}
+
+  neat-edifact@0.1.1:
+    resolution: {integrity: sha512-lSf3Ue93YN3P2dtvzRu8u24a+tUkG0w9lDYyD7bNq65qYykodnQ9gYrjkAfnN2fXlLu62MvNzppB0+MXpqgQ3Q==}
 
   obug@2.1.1:
     resolution: {integrity: sha512-uTqF9MuPraAQ+IsnPf366RG4cP9RtUi7MLO1N3KEc+wb0a6yKpeL0lmk2IB1jY5KHPAlTc6T/JRdC/YqxHNwkQ==}
@@ -1651,6 +1658,8 @@ snapshots:
   nanoid@3.3.11: {}
 
   natural-compare@1.4.0: {}
+
+  neat-edifact@0.1.1: {}
 
   obug@2.1.1: {}
 
