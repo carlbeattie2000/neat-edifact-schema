@@ -23,15 +23,17 @@ UNZ+1+TR000001''
 describe('Parser.split', () => {
   it('splits on delimiter', () => {
     const schema = defineSchema({
-      segments: [
+      items: [
         segment('BGM', { required: true }),
         segment('DTM', { required: true }),
       ],
-      groups: [],
       strict: true,
     });
 
-    const document = EdifactDocument.useStrict().fromString(EXAMPLE_EDIFACT, schema);
+    const document = EdifactDocument.useStrict().fromString(
+      EXAMPLE_EDIFACT,
+      schema,
+    );
 
     console.log(document.interchanges);
   });

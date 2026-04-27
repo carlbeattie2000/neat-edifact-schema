@@ -4,9 +4,7 @@ import type { DefineSchema } from './types.js';
 import type MappedSegment from '../mapper/mapped_segment.js';
 
 export default class EdifactSchema {
-  public segments: SegmentDefinition[];
-
-  public groups: GroupDefinition[];
+  public items: (SegmentDefinition | GroupDefinition)[];
 
   public transform: <T>(segment: MappedSegment) => T;
 
@@ -17,8 +15,7 @@ export default class EdifactSchema {
   }
 
   constructor(options: DefineSchema) {
-    this.segments = options.segments ?? [];
-    this.groups = options.groups ?? [];
+    this.items = options.items ?? [];
 
     this.transform = options?.transform ?? EdifactSchema.#defaultTransformFunction;
 

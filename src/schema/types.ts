@@ -15,15 +15,11 @@ export interface SegmentOptions {
 }
 
 export interface GroupOptions extends SegmentOptions {
-  segments?: SegmentDefinition[];
-
-  groups?: GroupDefinition[];
+  items?: (SegmentDefinition | GroupDefinition)[];
 }
 
 export interface DefineSchema {
-  segments?: SegmentDefinition[];
-
-  groups?: GroupDefinition[];
+  items?: (SegmentDefinition | GroupDefinition)[];
 
   transform?: <T>(segment: MappedSegment) => T;
 
