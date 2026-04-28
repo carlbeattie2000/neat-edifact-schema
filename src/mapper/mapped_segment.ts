@@ -1,19 +1,19 @@
 import type { DataElement, Segment } from 'neat-edifact';
 
 export default class MappedSegment {
-  #segment: Segment;
+  public tag: string;
+  segment: Segment;
 
   constructor(segment: Segment) {
-    this.#segment = segment;
+    this.tag = segment.tag;
+    this.segment = segment;
   }
 
-  getDataElement(index: number): DataElement | undefined {}
+  getDataElement(index: number): DataElement | undefined {
+    return this.segment.getDataElement(index);
+  }
 
-  getValue(index: number): string | undefined {}
-
-  toString(): string {}
-
-  get segment(): Segment {
-    return this.#segment;
+  getValue(index: number): string | undefined {
+    return this.segment.getDataElement(index)?.Value;
   }
 }

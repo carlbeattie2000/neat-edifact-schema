@@ -1,6 +1,7 @@
 import type GroupDefinition from './group_definition.js';
 import type SegmentDefinition from './segment_definition.js';
 import type MappedSegment from '../mapper/mapped_segment.js';
+import type HeadDefinition from './head_definition.js';
 
 export interface SegmentOptions {
   required?: boolean;
@@ -14,7 +15,18 @@ export interface SegmentOptions {
   transform?: <T>(segment: MappedSegment) => T;
 }
 
+export interface HeadOptions {
+  required?: boolean;
+
+  qualifier?: string;
+
+  ignore?: boolean;
+
+  transform?: <T>(segment: MappedSegment) => T;
+}
+
 export interface GroupOptions extends SegmentOptions {
+  head: HeadDefinition;
   items?: (SegmentDefinition | GroupDefinition)[];
 }
 

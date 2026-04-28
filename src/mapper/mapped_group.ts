@@ -1,31 +1,54 @@
 import type MappedSegment from './mapped_segment.js';
 
 export default class MappedGroup {
-  #segments: Map<string, (MappedSegment | unknown)[]>;
+  segments: Map<string, MappedSegment[]>;
 
-  #groups: Map<string, MappedGroup[]>;
+  groups: Map<string, MappedGroup[]>;
 
-  #headSegment: MappedSegment;
+  headSegment: MappedSegment;
 
   constructor(headSegment: MappedSegment) {
-    this.#segments = new Map();
-    this.#groups = new Map();
-    this.#headSegment = headSegment;
+    this.segments = new Map();
+    this.groups = new Map();
+    this.headSegment = headSegment;
+    this.addSegment(headSegment.tag, headSegment);
   }
 
-  public addSegment(tag: string, mappedSegment: MappedSegment): void {}
+  public addSegment(tag: string, mappedSegment: MappedSegment): void {
+    if (this.segments.has(tag)) {
+      this.segments.get(tag)?.push(mappedSegment);
+    } else {
+      this.segments.set(tag, [mappedSegment]);
+    }
+  }
 
-  public addGroup(tag: string, mappedGroup: MappedGroup): void {}
+  public addGroup(tag: string, mappedGroup: MappedGroup): void {
+    if (this.groups.has(tag)) {
+      this.groups.get(tag)?.push(mappedGroup);
+    } else {
+      this.groups.set(tag, [mappedGroup]);
+    }
+  }
 
   public replaceGroupResults(tag: string, transformedValues: any[]): void {}
 
-  public getSegment(tag: string): MappedSegment | any | undefined {}
+  public getSegment(tag: string): MappedSegment | undefined {
+    return this.segments.get(tag)?.at(0);
+  }
 
-  public getSegments(tag: string): (MappedSegment | any)[] {}
+  public getSegments(tag: string): MappedSegment[] {
+    return Array.from(this.segments.get(tag) ?? []);
+  }
 
-  public getGroup(tag: string): MappedGroup | any | undefined {}
+  public getGroup(tag: string): MappedGroup | undefined {
+    return this.groups.get(tag)?.at(0);
+  }
 
-  public getGroups(tag: string): (MappedGroup | any)[] {}
+  public getGroups(tag: string): MappedGroup[] {
+    return Array.from(this.groups.get(tag) ?? []);
+  }
 
-  get headSegment(): MappedSegment {}
+  get head(): MappedSegment {
+    return this.headSegment;
+  }
 }

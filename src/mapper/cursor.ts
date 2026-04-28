@@ -1,0 +1,35 @@
+import type { Segment } from 'neat-edifact';
+
+export default class Cursor {
+  #cursor: number;
+  #segments: Segment[];
+
+  constructor(segments: Segment[]) {
+    this.#cursor = 0;
+    this.#segments = segments;
+  }
+
+  get segment(): Segment | undefined {
+    return this.#segments[this.current];
+  }
+
+  get segments(): Segment[] {
+    return Object.assign([], this.#segments);
+  }
+
+  get current(): number {
+    return this.#cursor;
+  }
+
+  public next(): number {
+    return ++this.#cursor;
+  }
+
+  public previous(): number {
+    return --this.#cursor;
+  }
+
+  public reset(): void {
+    this.#cursor = 0;
+  }
+}
