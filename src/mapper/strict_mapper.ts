@@ -6,14 +6,18 @@ import Cursor from './cursor.js';
 import MappedGroup from './mapped_group.js';
 import MappedMessage from './mapped_message.js';
 import MappedSegment from './mapped_segment.js';
-import type { Definition, Store } from './types.js';
-import { isExactInstanceOf } from '../utils/is_exact_instance.js';
+import {
+  ConsumeOption,
+  type Definition,
+  type MessageItem,
+  type Store,
+} from './types.js';
 import GroupDefinition from '../schema/group_definition.js';
 import SchemaMissingSegmentError from '../errors/SchemaMissingSegmentError.js';
 import SchemaRepeatLimitError from '../errors/SchemaRepeatLimitError.js';
 import SchemaMissingGroupError from '../errors/SchemaMissingGroupError.js';
 import SchemaExtraSegmentError from '../errors/SchemaExtraSegmentError.js';
-import type HeadDefinition from '../schema/head_definition.js';
+import HeadDefinition from '../schema/head_definition.js';
 
 const ZERO = 0;
 
@@ -59,7 +63,7 @@ export default class StrictMapper {
 
   private match(definition: Definition): boolean {
     if (!this.#cursor.segment) {
-      throw new SchemaOutOfOrderError();
+      throw new SchemaMissingSegmentError();
     }
 
     if (this.#cursor.segment.tag !== definition.tag) {
@@ -69,6 +73,24 @@ export default class StrictMapper {
     return this.matchQualifier(definition);
   }
 
+  private consume(item: MessageItem, store?: Store, option?: ConsumeOption) {
+    store = store ?? this.#rootMessage;
+
+    if (item instanceof MappedSegment) {
+      store.addSegment(item.tag, item);
+    }
+
+    if (item instanceof MappedGroup) {
+      store.addGroup(item.head.tag, item);
+    }
+
+    if (ConsumeOption.NO_INCREMENTS === option) {
+      return;
+    }
+
+    this.#cursor.next();
+  }
+
   private freeze() {
     this.#mapped = true;
     this.#cursor = new Cursor([]);
@@ -76,7 +98,73 @@ export default class StrictMapper {
     Object.freeze(this);
   }
 
-  private handle(definition: Definition, store: Store) {
+  private handle(definition: Definition, store?: Store) {
+    store = store ?? this.#rootMessage;
+
+    if (definition instanceof SegmentDefinition) {
+      let counted = 0;
+
+      if (this.#cursor.segment && this.#cursor.segment.tag !== definition.tag) {
+        throw new SchemaOutOfOrderError();
+      }
+
+      while (this.matchHead(definition)) {
+        if (this.match(definition)) {
+          this.consume(new MappedSegment(this.#cursor.segment!), store);
+          counted++;
+
+          if (!this.matchQualifier(definition, true)) {
+            break;
+          }
+        }
+      }
+
+      if (definition.required && counted === ZERO) {
+        throw new SchemaMissingSegmentError();
+      }
+
+      if (counted > definition.repeatable) {
+        throw new SchemaRepeatLimitError(
+          definition.tag,
+          definition.repeatable,
+          counted,
+        );
+      }
+    }
+
+    if (definition instanceof GroupDefinition) {
+      let counted = 0;
+
+      while (this.matchHead(definition)) {
+        const mappedGroup = new MappedGroup(
+          new MappedSegment(this.#cursor.segment!),
+        );
+        this.handle(definition.headDefinition, mappedGroup);
+        definition.definitions.forEach((childDefinition) => {
+          this.handle(childDefinition, mappedGroup);
+        });
+        this.consume(mappedGroup, store, ConsumeOption.NO_INCREMENTS);
+        counted++;
+      }
+
+      if (definition.required && counted === ZERO) {
+        throw new SchemaMissingGroupError(definition.tag);
+      }
+
+      if (counted > definition.repeatable) {
+        throw new SchemaRepeatLimitError(
+          definition.tag,
+          definition.repeatable,
+          counted,
+        );
+      }
+    }
+
+    if (definition instanceof HeadDefinition) {
+      if (this.match(definition)) {
+        this.consume(new MappedSegment(this.#cursor.segment!), store);
+      }
+    }
   }
 
   public map(message: Message): MappedMessage {
@@ -89,10 +177,12 @@ export default class StrictMapper {
     this.#schema.items.forEach((definition) => {
       if (this.#cursor.current >= this.#cursor.segments.length) {
         if (definition.required) {
-          throw new SchemaOutOfOrderError();
+          throw new SchemaMissingSegmentError();
         }
         return;
       }
+
+      this.handle(definition);
     });
 
     if (this.#cursor.current < this.#cursor.segments.length) {

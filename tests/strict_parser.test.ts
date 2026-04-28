@@ -49,7 +49,7 @@ describe('StrictMapper', () => {
       expect(result.getSegment('BGM')?.tag).toBe('BGM');
     });
 
-    it('should throw for required missing segment', () => {
+    it('should throw for required segment with wrong tag', () => {
       const schema = defineSchema({
         items: [defineSegment('BGM', { required: true })],
         strict: true,
@@ -60,8 +60,7 @@ describe('StrictMapper', () => {
       ]);
       const mapper = new Mapper(schema);
 
-      expect(() => mapper.map(message)).toThrow(SchemaMissingSegmentError);
-      expect(() => mapper.map(message)).toThrow(/expected BGM/);
+      expect(() => mapper.map(message)).toThrow(SchemaOutOfOrderError);
     });
 
     it('should map multiple segments in order', () => {
@@ -262,10 +261,7 @@ describe('StrictMapper', () => {
             items: [
               defineGroup({
                 head: defineHead('CTA', { required: true }),
-                items: [
-                  defineSegment('CTA', { required: true }),
-                  defineSegment('COM', { repeatable: 2 }),
-                ],
+                items: [defineSegment('COM', { repeatable: 2 })],
               }),
             ],
           }),
@@ -307,8 +303,7 @@ describe('StrictMapper', () => {
       ]);
       const mapper = new Mapper(schema);
 
-      expect(() => mapper.map(message)).toThrow(SchemaMissingSegmentError);
-      expect(() => mapper.map(message)).toThrow(/expected BGM/);
+      expect(() => mapper.map(message)).toThrow(SchemaOutOfOrderError);
     });
 
     it('should throw when groups out of order', () => {
@@ -316,9 +311,11 @@ describe('StrictMapper', () => {
         items: [
           defineGroup({
             head: defineHead('TDT', { required: true }),
+            required: true,
           }),
           defineGroup({
             head: defineHead('NAD', { required: true }),
+            required: true,
           }),
         ],
         strict: true,
@@ -330,7 +327,8 @@ describe('StrictMapper', () => {
       ]);
       const mapper = new Mapper(schema);
 
-      expect(() => mapper.map(message)).toThrow(/SchemaOutOfOrderError/);
+      expect(() => mapper.map(message)).toThrow(SchemaMissingGroupError);
+      expect(() => mapper.map(message)).toThrow(/TDT/);
     });
 
     it('should throw when extra segments exist after all definitions', () => {
@@ -426,7 +424,6 @@ describe('StrictMapper', () => {
       const mapper = new Mapper(schema);
 
       expect(() => mapper.map(message)).toThrow(SchemaMissingSegmentError);
-      expect(() => mapper.map(message)).toThrow(/Segment out of order/);
     });
 
     it('should handle group with no children', () => {

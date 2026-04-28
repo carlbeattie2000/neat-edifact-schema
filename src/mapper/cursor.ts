@@ -1,4 +1,5 @@
 import type { Segment } from 'neat-edifact';
+import SchemaMissingSegmentError from '../errors/SchemaMissingSegmentError.js';
 
 export default class Cursor {
   #cursor: number;
