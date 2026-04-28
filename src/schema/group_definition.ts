@@ -1,9 +1,26 @@
+import type MappedSegment from '../mapper/mapped_segment.js';
 import type HeadDefinition from './head_definition.js';
 import SegmentDefinition from './segment_definition.js';
 
 import type { GroupOptions } from './types.js';
 
-export default class GroupDefinition extends SegmentDefinition {
+export default class GroupDefinition {
+  public tag: string;
+
+  public required: boolean;
+
+  public repeatable: number;
+
+  public qualifier: string;
+
+  public ignore: boolean;
+
+  public transform: <T>(segment: MappedSegment) => T;
+
+  static #defaultTransformFunction<T>(segment: MappedSegment): T {
+    return segment as T;
+  }
+
   public headDefinition: HeadDefinition;
   public definitions: (SegmentDefinition | GroupDefinition)[];
 
@@ -12,7 +29,18 @@ export default class GroupDefinition extends SegmentDefinition {
       // need a definitions error
       throw new Error();
     }
-    super(tag, options);
+    this.tag = tag;
+
+    this.required = options?.required ?? false;
+
+    this.repeatable = options?.repeatable ?? 1;
+
+    this.qualifier = options?.qualifier ?? '';
+
+    this.ignore = options?.ignore ?? false;
+
+    this.transform =
+      options?.transform ?? GroupDefinition.#defaultTransformFunction;
 
     this.headDefinition = options.head;
     this.definitions = options?.items ?? [];

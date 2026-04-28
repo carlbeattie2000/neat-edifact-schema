@@ -6,7 +6,7 @@ import Cursor from './cursor.js';
 import MappedGroup from './mapped_group.js';
 import MappedMessage from './mapped_message.js';
 import MappedSegment from './mapped_segment.js';
-import type { SchemaItem } from './types.js';
+import type { Definition, Store } from './types.js';
 import { isExactInstanceOf } from '../utils/is_exact_instance.js';
 import GroupDefinition from '../schema/group_definition.js';
 import SchemaMissingSegmentError from '../errors/SchemaMissingSegmentError.js';
@@ -30,7 +30,7 @@ export default class StrictMapper {
     this.#mapped = false;
   }
 
-  private matchHead(definition: SchemaItem | HeadDefinition): boolean {
+  private matchHead(definition: Definition): boolean {
     if (!this.#cursor.segment) {
       return false;
     }
@@ -38,7 +38,7 @@ export default class StrictMapper {
   }
 
   private matchQualifier(
-    definition: SchemaItem | HeadDefinition,
+    definition: Definition,
     silent: boolean = false,
   ): boolean {
     if (!definition.qualifier) {
@@ -57,7 +57,7 @@ export default class StrictMapper {
     return true;
   }
 
-  private match(definition: SchemaItem): boolean {
+  private match(definition: Definition): boolean {
     if (!this.#cursor.segment) {
       throw new SchemaOutOfOrderError();
     }
@@ -69,155 +69,14 @@ export default class StrictMapper {
     return this.matchQualifier(definition);
   }
 
-  private consumeSegment(
-    mappedSegment: MappedSegment,
-    store?: MappedMessage | MappedGroup,
-  ): void {
-    if (store) {
-      store.addSegment(mappedSegment.segment.tag, mappedSegment);
-    } else {
-      this.#rootMessage.addSegment(mappedSegment.segment.tag, mappedSegment);
-    }
-  }
-
-  private consumeGroup(
-    mappedGroup: MappedGroup,
-    store?: MappedMessage | MappedGroup,
-  ): void {
-    if (store) {
-      store.addGroup(mappedGroup.head.tag, mappedGroup);
-    } else {
-      this.#rootMessage.addGroup(mappedGroup.head.tag, mappedGroup);
-    }
-  }
-
-  private consume(
-    mappedSegment: MappedSegment | MappedGroup,
-    store?: MappedMessage | MappedGroup,
-  ): void {
-    if (mappedSegment instanceof MappedSegment) {
-      this.consumeSegment(mappedSegment, store);
-    } else {
-      this.consumeGroup(mappedSegment, store);
-    }
-  }
-
-  private mapSegment(definition: SegmentDefinition): MappedSegment | undefined {
-    if (this.match(definition) && this.#cursor.segment) {
-      return new MappedSegment(this.#cursor.segment);
-    }
-    return undefined;
-  }
-
-  private handleSegmentDefinition(
-    definition: SegmentDefinition,
-    store?: MappedMessage | MappedGroup,
-  ) {
-    let counted = 0;
-
-    while (this.matchHead(definition)) {
-      const mappedSegment = this.mapSegment(definition);
-
-      if (mappedSegment) {
-        this.consume(mappedSegment, store);
-        counted++;
-
-        if (!this.matchQualifier(definition, true)) {
-          break;
-        }
-      }
-    }
-
-    if (definition.required && counted === ZERO) {
-      throw new SchemaMissingSegmentError(definition.tag);
-    }
-
-    if (counted > definition.repeatable) {
-      throw new SchemaRepeatLimitError(
-        definition.tag,
-        definition.repeatable,
-        counted,
-      );
-    }
-  }
-
-  private handleGroupHeadDefinition(
-    definition: HeadDefinition,
-  ): MappedGroup | undefined {
-    if (!this.#cursor.segment || !this.matchHead(definition)) {
-      throw new SchemaMissingGroupError(definition.tag);
-    }
-
-    if (definition.qualifier) {
-      this.matchQualifier(definition);
-    }
-
-    const mappedHead = new MappedSegment(this.#cursor.segment);
-    const mappedGroup = new MappedGroup(mappedHead);
-
-    return mappedGroup;
-  }
-
-  private mapGroup(definition: GroupDefinition): MappedGroup | undefined {
-    const mappedGroup = this.handleGroupHeadDefinition(definition);
-
-    if (!mappedGroup) {
-      return undefined;
-    }
-
-    definition.definitions.forEach((childDefinition) => {
-      if (isExactInstanceOf(childDefinition, SegmentDefinition)) {
-        this.handleSegmentDefinition(childDefinition, mappedGroup);
-      }
-
-      if (
-        isExactInstanceOf(childDefinition, GroupDefinition) &&
-        childDefinition instanceof GroupDefinition
-      ) {
-        this.handleGroupDefinition(childDefinition, mappedGroup);
-      }
-    });
-
-    return mappedGroup;
-  }
-
-  private handleGroupDefinition(
-    definition: GroupDefinition,
-    store?: MappedGroup,
-  ) {
-    let counted = 0;
-
-    while (this.matchHead(definition)) {
-      const mappedGroup = this.mapGroup(definition);
-
-      if (mappedGroup) {
-        this.consume(mappedGroup, store);
-        counted++;
-
-        if (!this.matchQualifier(definition, true)) {
-          break;
-        }
-      }
-    }
-
-    if (definition.required && counted === ZERO) {
-      throw new SchemaMissingSegmentError(definition.tag);
-    }
-
-    if (counted > definition.repeatable) {
-      throw new SchemaRepeatLimitError(
-        definition.tag,
-        definition.repeatable,
-        counted,
-      );
-    }
-  }
-
   private freeze() {
     this.#mapped = true;
     this.#cursor = new Cursor([]);
     this.#schema = new EdifactSchema({});
     Object.freeze(this);
+  }
+
+  private handle(definition: Definition, store: Store) {
   }
 
   public map(message: Message): MappedMessage {
@@ -233,20 +92,6 @@ export default class StrictMapper {
           throw new SchemaOutOfOrderError();
         }
         return;
-      }
-
-      if (
-        isExactInstanceOf(definition, SegmentDefinition) &&
-        definition instanceof SegmentDefinition
-      ) {
-        return this.handleSegmentDefinition(definition);
-      }
-
-      if (
-        isExactInstanceOf(definition, GroupDefinition) &&
-        definition instanceof GroupDefinition
-      ) {
-        return this.handleGroupDefinition(definition);
       }
     });
 
