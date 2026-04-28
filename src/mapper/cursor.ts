@@ -1,12 +1,13 @@
 import type { Segment } from 'neat-edifact';
-import SchemaMissingSegmentError from '../errors/SchemaMissingSegmentError.js';
 
 export default class Cursor {
   #cursor: number;
   #segments: Segment[];
+  #checkpoint: number;
 
   constructor(segments: Segment[]) {
     this.#cursor = 0;
+    this.#checkpoint = 0;
     this.#segments = segments;
   }
 
@@ -32,5 +33,13 @@ export default class Cursor {
 
   public reset(): void {
     this.#cursor = 0;
+  }
+
+  public checkpoint(): void {
+    this.#checkpoint = this.#cursor;
+  }
+
+  public rollback(): void {
+    this.#cursor = this.#checkpoint;
   }
 }

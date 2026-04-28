@@ -18,8 +18,7 @@ import SchemaRepeatLimitError from '../errors/SchemaRepeatLimitError.js';
 import SchemaMissingGroupError from '../errors/SchemaMissingGroupError.js';
 import SchemaExtraSegmentError from '../errors/SchemaExtraSegmentError.js';
 import HeadDefinition from '../schema/head_definition.js';
-
-const ZERO = 0;
+import { isZero } from '../utils.js';
 
 export default class StrictMapper {
   #schema: EdifactSchema;
@@ -119,7 +118,7 @@ export default class StrictMapper {
         }
       }
 
-      if (definition.required && counted === ZERO) {
+      if (definition.required && isZero(counted)) {
         throw new SchemaMissingSegmentError();
       }
 
@@ -147,7 +146,7 @@ export default class StrictMapper {
         counted++;
       }
 
-      if (definition.required && counted === ZERO) {
+      if (definition.required && isZero(counted)) {
         throw new SchemaMissingGroupError(definition.tag);
       }
 
