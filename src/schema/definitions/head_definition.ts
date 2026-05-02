@@ -1,6 +1,5 @@
 import type { Segment } from 'neat-edifact';
 
-import type MappedSegment from '../../mapper/mapped/mapped_segment.js';
 import type { HeadOptions } from '../types.js';
 
 export default class HeadDefinition {
@@ -12,12 +11,6 @@ export default class HeadDefinition {
 
   public ignore: boolean;
 
-  public transform: <T>(segment: MappedSegment) => T;
-
-  static #defaultTransformFunction<T>(segment: MappedSegment): T {
-    return segment as T;
-  }
-
   constructor(tag: string, options?: HeadOptions) {
     this.tag = tag;
 
@@ -26,8 +19,6 @@ export default class HeadDefinition {
     this.qualifier = options?.qualifier ?? '';
 
     this.ignore = options?.ignore ?? false;
-
-    this.transform = options?.transform ?? HeadDefinition.#defaultTransformFunction;
   }
 
   public matchQualifier(segment: Segment): boolean {

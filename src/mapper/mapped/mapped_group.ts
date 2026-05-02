@@ -30,8 +30,6 @@ export default class MappedGroup {
     }
   }
 
-  public replaceGroupResults(tag: string, transformedValues: any[]): void {}
-
   public getSegment(tag: string): MappedSegment | undefined {
     return this.segments.get(tag)?.[0];
   }

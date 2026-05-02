@@ -3,7 +3,7 @@ import type HeadDefinition from './definitions/head_definition.js';
 import type SegmentDefinition from './definitions/segment_definition.js';
 import type MappedSegment from '../mapper/mapped/mapped_segment.js';
 
-export interface SegmentOptions {
+export interface SegmentOptions<T = unknown> {
   required?: boolean;
 
   repeatable?: number;
@@ -12,7 +12,7 @@ export interface SegmentOptions {
 
   ignore?: boolean;
 
-  transform?: <T>(segment: MappedSegment) => T;
+  transform?: (segment: MappedSegment) => T;
 }
 
 export interface HeadOptions {

@@ -2,7 +2,6 @@ import type { Segment } from 'neat-edifact';
 
 import type HeadDefinition from './head_definition.js';
 import type SegmentDefinition from './segment_definition.js';
-import type MappedSegment from '../../mapper/mapped/mapped_segment.js';
 import type { GroupOptions } from '../types.js';
 
 export default class GroupDefinition {
@@ -15,12 +14,6 @@ export default class GroupDefinition {
   public qualifier: string;
 
   public ignore: boolean;
-
-  public transform: <T>(segment: MappedSegment) => T;
-
-  static #defaultTransformFunction<T>(segment: MappedSegment): T {
-    return segment as T;
-  }
 
   public headDefinition: HeadDefinition;
 
@@ -40,8 +33,6 @@ export default class GroupDefinition {
     this.qualifier = options?.qualifier ?? '';
 
     this.ignore = options?.ignore ?? false;
-
-    this.transform = options?.transform ?? GroupDefinition.#defaultTransformFunction;
 
     this.headDefinition = options.head;
     this.definitions = options?.items ?? [];

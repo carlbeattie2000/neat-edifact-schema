@@ -36,10 +36,6 @@ export default class MappedMessage {
     this.unknown.push(segment);
   }
 
-  public replaceSegmentResult(tag: string, transformedValues: any[]): void {}
-
-  public replaceGroupResults(tag: string, transformedValues: any[]): void {}
-
   public getSegment(tag: string): MappedSegment | undefined {
     return this.segments.get(tag)?.[0];
   }

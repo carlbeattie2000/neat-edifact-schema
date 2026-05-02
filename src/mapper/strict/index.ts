@@ -7,7 +7,6 @@ import GroupDefinition from '../../schema/definitions/group_definition.js';
 import HeadDefinition from '../../schema/definitions/head_definition.js';
 import SegmentDefinition from '../../schema/definitions/segment_definition.js';
 import EdifactSchema from '../../schema/index.js';
-import { isZero } from '../../utils.js';
 import Cursor from '../cursor/cursor.js';
 import MappedGroup from '../mapped/mapped_group.js';
 import MappedMessage from '../mapped/mapped_message.js';
@@ -116,7 +115,7 @@ export default class StrictMapper {
         }
       }
 
-      if (definition.required && isZero(counted)) {
+      if (definition.required && counted === 0) {
         throw new SchemaMissingSegmentError();
       }
 
@@ -138,7 +137,7 @@ export default class StrictMapper {
         counted += 1;
       }
 
-      if (definition.required && isZero(counted)) {
+      if (definition.required && counted === 0) {
         throw new SchemaMissingGroupError(definition.tag);
       }
 
