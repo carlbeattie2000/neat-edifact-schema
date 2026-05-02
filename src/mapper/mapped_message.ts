@@ -41,7 +41,7 @@ export default class MappedMessage {
   public replaceGroupResults(tag: string, transformedValues: any[]): void {}
 
   public getSegment(tag: string): MappedSegment | undefined {
-    return this.segments.get(tag)?.at(0);
+    return this.segments.get(tag)?.[0];
   }
 
   public getSegments(tag: string): MappedSegment[] {
@@ -53,7 +53,7 @@ export default class MappedMessage {
   }
 
   public getGroup(tag: string): MappedGroup | undefined {
-    return this.groups.get(tag)?.at(0);
+    return this.groups.get(tag)?.[0];
   }
 
   public getGroups(tag: string): MappedGroup[] {

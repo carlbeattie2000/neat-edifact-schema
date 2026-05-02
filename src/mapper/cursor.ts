@@ -2,7 +2,9 @@ import type { Segment } from 'neat-edifact';
 
 export default class Cursor {
   #cursor: number;
+
   #segments: Segment[];
+
   #checkpoint: number;
 
   constructor(segments: Segment[]) {
@@ -24,11 +26,13 @@ export default class Cursor {
   }
 
   public next(): number {
-    return ++this.#cursor;
+    this.#cursor += 1;
+    return this.#cursor;
   }
 
   public previous(): number {
-    return --this.#cursor;
+    this.#cursor -= 1;
+    return this.#cursor;
   }
 
   public reset(): void {

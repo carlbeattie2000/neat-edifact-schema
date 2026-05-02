@@ -1,29 +1,33 @@
-import type { Message } from 'neat-edifact';
-import SchemaOutOfOrderError from '../errors/SchemaOutOfOrderError.js';
-import EdifactSchema from '../schema/index.js';
-import SegmentDefinition from '../schema/segment_definition.js';
 import Cursor from './cursor.js';
 import MappedGroup from './mapped_group.js';
 import MappedMessage from './mapped_message.js';
 import MappedSegment from './mapped_segment.js';
 import {
   ConsumeOption,
-  type Definition,
-  type MessageItem,
-  type Store,
+
 } from './types.js';
-import GroupDefinition from '../schema/group_definition.js';
-import SchemaMissingSegmentError from '../errors/SchemaMissingSegmentError.js';
-import SchemaRepeatLimitError from '../errors/SchemaRepeatLimitError.js';
-import SchemaMissingGroupError from '../errors/SchemaMissingGroupError.js';
 import SchemaExtraSegmentError from '../errors/SchemaExtraSegmentError.js';
+import SchemaMissingGroupError from '../errors/SchemaMissingGroupError.js';
+import SchemaMissingSegmentError from '../errors/SchemaMissingSegmentError.js';
+import SchemaOutOfOrderError from '../errors/SchemaOutOfOrderError.js';
+import SchemaRepeatLimitError from '../errors/SchemaRepeatLimitError.js';
+import GroupDefinition from '../schema/group_definition.js';
 import HeadDefinition from '../schema/head_definition.js';
+import EdifactSchema from '../schema/index.js';
+import SegmentDefinition from '../schema/segment_definition.js';
 import { isZero } from '../utils.js';
+
+import type { Message } from 'neat-edifact';
+
+import type { Definition, MessageItem, Store } from './types.js';
 
 export default class StrictMapper {
   #schema: EdifactSchema;
+
   #rootMessage: MappedMessage;
+
   #cursor: Cursor;
+
   #mapped: boolean;
 
   constructor(schema: EdifactSchema) {
@@ -42,7 +46,7 @@ export default class StrictMapper {
 
   private matchQualifier(
     definition: Definition,
-    silent: boolean = false,
+    silent = false,
   ): boolean {
     if (!definition.qualifier) {
       return true;
@@ -50,7 +54,7 @@ export default class StrictMapper {
 
     const qualifier = this.#cursor?.segment?.getDataElement(0);
 
-    if (!qualifier || definition.qualifier !== qualifier.Value) {
+    if (definition.qualifier !== qualifier?.Value) {
       if (silent) {
         return false;
       }
@@ -73,14 +77,14 @@ export default class StrictMapper {
   }
 
   private consume(item: MessageItem, store?: Store, option?: ConsumeOption) {
-    store = store ?? this.#rootMessage;
+    const localStore = store ?? this.#rootMessage;
 
     if (item instanceof MappedSegment) {
-      store.addSegment(item.tag, item);
+      localStore.addSegment(item.tag, item);
     }
 
     if (item instanceof MappedGroup) {
-      store.addGroup(item.head.tag, item);
+      localStore.addGroup(item.head.tag, item);
     }
 
     if (ConsumeOption.NO_INCREMENTS === option) {
@@ -98,7 +102,7 @@ export default class StrictMapper {
   }
 
   private handle(definition: Definition, store?: Store) {
-    store = store ?? this.#rootMessage;
+    const localStore = store ?? this.#rootMessage;
 
     if (definition instanceof SegmentDefinition) {
       let counted = 0;
@@ -108,9 +112,9 @@ export default class StrictMapper {
       }
 
       while (this.matchHead(definition)) {
-        if (this.match(definition)) {
-          this.consume(new MappedSegment(this.#cursor.segment!), store);
-          counted++;
+        if (this.match(definition) && this.#cursor.segment) {
+          this.consume(new MappedSegment(this.#cursor.segment), localStore);
+          counted += 1;
 
           if (!this.matchQualifier(definition, true)) {
             break;
@@ -134,16 +138,16 @@ export default class StrictMapper {
     if (definition instanceof GroupDefinition) {
       let counted = 0;
 
-      while (this.matchHead(definition)) {
+      while (this.matchHead(definition) && this.#cursor.segment) {
         const mappedGroup = new MappedGroup(
-          new MappedSegment(this.#cursor.segment!),
+          new MappedSegment(this.#cursor.segment),
         );
         this.handle(definition.headDefinition, mappedGroup);
         definition.definitions.forEach((childDefinition) => {
           this.handle(childDefinition, mappedGroup);
         });
-        this.consume(mappedGroup, store, ConsumeOption.NO_INCREMENTS);
-        counted++;
+        this.consume(mappedGroup, localStore, ConsumeOption.NO_INCREMENTS);
+        counted += 1;
       }
 
       if (definition.required && isZero(counted)) {
@@ -160,8 +164,8 @@ export default class StrictMapper {
     }
 
     if (definition instanceof HeadDefinition) {
-      if (this.match(definition)) {
-        this.consume(new MappedSegment(this.#cursor.segment!), store);
+      if (this.match(definition) && this.#cursor.segment) {
+        this.consume(new MappedSegment(this.#cursor.segment), localStore);
       }
     }
   }
