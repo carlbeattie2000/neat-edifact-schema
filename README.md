@@ -1,135 +1,125 @@
 # neat-edifact-schema
-
 A TypeScript schema mapper for UN/EDIFACT interchanges. Give it a raw EDIFACT string and a schema definition, get back a typed, queryable object. That's it.
-
 It handles the structure mapping layer only — no business logic, no transforms, no opinions about what your data means. If you need BAPLIE parsing with domain objects, build that on top of this.
 
 ## Install
-
 ```bash
 npm install neat-edifact-schema neat-edifact
 pnpm add neat-edifact-schema neat-edifact
 ```
 
 ## Usage
-
 ```ts
-import { Mapper } from 'neat-edifact-mapper'
+import { defineGroup, defineSchema, defineSegment, EdifactDocument } from "neat-edifact-mapper";
 
-const raw = `UNB+UNOA:2+SENDER+RECEIVER+260424:0811+000001'
-UNH+000001+BAPLIE:D:95B:UN:SMDG20'
-BGM++V123456+9'
-UNT+3+000001'
-UNZ+1+000001'`
+const rawMessage = `UNA:+.? '
+UNB+UNOA:2+SENDER+RECIPIENT+240101:1200+00000001'
+UNH+1+ORDERS:D:96A:UN:1A'
+BGM+220+ORDER123+9'
+DTM+137:202405011200:203'
+LIN+1+20+ITEM001'
+QTY+21:10:PCE'
+UNT+6+1'
+UNZ+1+00000001'`
 
-const schema = defineSchema();
+const schema = defineSchema({
+  items: [
+    defineSegment('BGM', { required: true }),
+    defineSegment('DTM', { required: true }),
+    defineGroup({
+      head: defineSegment('LIN', { required: true }),
+      items: [
+        defineSegment('QTY', { required: false })
+      ],
+      required: false
+    })
+  ],
+  strict: true
+});
 
-const result = new Parser(raw).parse()
-const interchange = result.first();
-
-console.log(interchange.senderId)   // 'SENDER'
-console.log(interchange.messages[0].messageType) // 'BAPLIE'
-console.log(interchange.messages[0].segments[0].tag) // 'BGM'
+EdifactDocument.useStrict().fromString(rawMessage, schema).map() // MappedMessage[];
 ```
 
-`parse()` always returns `InterchangeResult` — even for single interchange files. Just use `result.first()` for the common case.
+`map()` always returns `MappedMessage[]` — even for single interchange files. Just use the first array item for the common case.
 
 ## Strict mode
+By default the mapper is lenient. It'll do its best with whatever you give it, collecting unrecognised segments into an `unknown` bucket and stopping if things go too far off the rails.
 
-By default the parser is lenient. It'll do its best with whatever you give it — orphaned segments, missing `UNZ`, mismatched references, it'll handle it all gracefully.
-
-If you want it to throw on any of that, pass `true` as the second argument:
+If you want it to throw on any of that, pass `strict: true` when creating the schema and use `.useStrict()` on the `EdifactDocument`.
 
 ```ts
-new Parser(raw, true).parse()
+const schema = defineSchema({
+  items: [...],
+  strict: true
+});
+
+EdifactDocument.useStrict().fromString('', schema).map()
 ```
 
 Strict mode enforces:
-- First segment must be `UNB`, last must be `UNZ`
-- Only one `UNB`/`UNZ` pair
-- Every `UNH` must have a matching `UNT`
-- No segments outside a `UNH`/`UNT` pair
-- Control references must match between `UNB`/`UNZ` and `UNH`/`UNT`
-- Segment and message counts must match what's declared
-
-## UNA
-
-If the file has a `UNA` service string advice, the parser reads it automatically and uses those delimiters. If not, it falls back to the EDIFACT defaults (`+`, `:`, `'`, `?`). You don't need to do anything.
+- **Required segments** — if a segment is marked `required: true` and is missing, an error is thrown
+- **Unknown segments** — any segment not defined in your schema will throw rather than being collected
 
 ## API
 
-### `Parser`
-
+### `EdifactDocument`
 ```ts
-new Parser(rawContent: string, strict?: boolean)
-parser.parse(): InterchangeResult
+EdifactDocument.useStrict()
+EdifactDocument.fromString(raw: string, schema: Schema): EdifactDocument
+EdifactDocument.map(): MappedMessage[]
 ```
 
-### `InterchangeResult`
-
+### `MappedMessage`
 ```ts
-interchangeResult.first()
-interchangeResult.firstOrFail()
-interchangeResult.at(0)
-interchangeResult.atOrFail(1)
-interchangeResult.length()
-interchangeResult.all()
-interchangeResult.errors()
-interchangeResult.hasErrors()
-interchangeResult.isValid()
+mappedMessage.get('BGM')           // MappedSegment | MappedGroup | undefined
+mappedMessage.get('LIN')           // MappedGroup | undefined
+mappedMessage.unknown              // Segment[] — unrecognised segments (lenient mode only)
 ```
 
-
-### `Interchange`
-
+### `MappedSegment`
 ```ts
-interchange.syntaxIdentifier  // e.g. 'UNOA'
-interchange.syntaxVersion     // e.g. '2'
-interchange.senderId
-interchange.recipientId
-interchange.date              // 'YYMMDD'
-interchange.time              // 'HHMM'
-interchange.controlReference
-interchange.declaredMessageCount
-interchange.messages          // Message[]
+mappedSegment.tag
+mappedSegment.getDataElement(0)
+mappedSegment.getDataElement(0)?.value
+mappedSegment.getDataElement(0)?.getComponent(1)?.value
 ```
 
-### `Message`
-
+### `MappedGroup`
 ```ts
-message.messageReferenceNumber
-message.messageType     // e.g. 'BAPLIE'
-message.messageVersion  // e.g. 'D'
-message.messageRelease  // e.g. '95B'
-message.controllingAgency
-message.associationCode
-message.declaredSegmentCount
-message.segments        // Segment[]
+mappedGroup.head                   // MappedSegment
+mappedGroup.get('QTY')             // MappedSegment | undefined
+mappedGroup.unknown                // Segment[]
 ```
 
-### `Segment`
-
+### Schema helpers
 ```ts
-segment.tag                        // e.g. 'LOC'
-segment.getDataElement(0)          // DataElement | undefined
-segment.getDataElement(0)?.Value   // first component of that element
-segment.getDataElement(0)?.getComponent(1)?.value  // specific component
+defineSchema({ items: SegmentDefinition[], strict?: boolean }): Schema
+defineSegment(tag: string, options?: SegmentOptions): SegmentDefinition
+defineGroup({ head: SegmentDefinition, items: SegmentDefinition[], required?: boolean }): GroupDefinition
+```
+
+### `SegmentOptions`
+```ts
+{
+  required?: boolean       // default: false
+  repeatable?: number      // default: 1
+  qualifier?: string       // match on first data element value
+  ignore?: boolean         // parse but discard
+}
 ```
 
 ## Errors
-
 ```ts
-import { EdifactSyntaxError, EdifactEnvelopeError, EdifactValidationError, InterchangeNotFoundError } from 'neat-edifact'
-
+import { EdifactSyntaxError, EdifactEnvelopeError, EdifactValidationError } from 'neat-edifact'
+import { EdifactMappingError } from 'neat-edifact-schema'
 ```
-
-- `EdifactSyntaxError` — malformed input, e.g. a segment with no tag
-- `EdifactEnvelopeError` — missing or broken `UNB`/`UNZ`/`UNH`/`UNT` structure
+- `EdifactSyntaxError` — malformed input from the parser layer
+- `EdifactEnvelopeError` — broken `UNB`/`UNZ`/`UNH`/`UNT` structure
 - `EdifactValidationError` — count or reference mismatches (strict mode only)
-- `InterchangeNotFoundError` — thrown by `.firstOrFail()` when the result is empty, or `.atOrFail(n)` when no interchange exists at that index
+- `EdifactMappingError` — required segment missing or unknown segment encountered (strict mode only)
 
 ## Notes
-
-- Multiple interchanges in one file are supported in non-strict mode — each `UNB` produces a separate `Interchange` on the `InterchangeResult`
-- The release character (`?` by default) is handled correctly at all levels
-- Zero runtime dependencies
+- `map()` always returns `MappedMessage[]` — use `.first()` or index `[0]` for the common single-message case
+- In lenient mode, unrecognised segments are collected into `.unknown` on the `MappedMessage` or `MappedGroup` — position is preserved relative to surrounding mapped segments
+- The scan limit in lenient mode is 999 consecutive unmatched segments — at that point the mapper returns whatever it has built so far
+- Zero runtime dependencies beyond `neat-edifact`
