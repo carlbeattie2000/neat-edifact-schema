@@ -4,18 +4,17 @@ import { Parser } from 'neat-edifact';
 
 import Mapper from '../mapper/index.js';
 
-import type { Interchange } from 'neat-edifact';
+import type { InterchangeResult } from 'neat-edifact';
 
 import type MappedMessage from '../mapper/mapped_message.js';
-import type { MapperOptions } from '../mapper/mapper_options.js';
 import type EdifactSchema from '../schema/index.js';
 
 export default class EdifactDocument {
-  #interchanges: Interchange[];
+  #interchanges: InterchangeResult;
 
   #schema: EdifactSchema;
 
-  constructor(interchanges: Interchange[], schema: EdifactSchema) {
+  constructor(interchanges: InterchangeResult, schema: EdifactSchema) {
     this.#interchanges = interchanges;
     this.#schema = schema;
   }
@@ -58,11 +57,11 @@ export default class EdifactDocument {
     return new EdifactDocument(interchanges, schema);
   }
 
-  public map(options?: MapperOptions): MappedMessage[] {
-    const mapper = new Mapper(this.#schema, options);
+  public map(): MappedMessage[] {
+    const mapper = new Mapper(this.#schema);
     const results: MappedMessage[] = [];
 
-    this.#interchanges.forEach((interchange) => {
+    this.#interchanges.all().forEach((interchange) => {
       results.push(
         ...interchange.messages.map((message) => mapper.map(message)),
       );
@@ -71,7 +70,7 @@ export default class EdifactDocument {
     return results;
   }
 
-  get interchanges(): Interchange[] {
+  get interchanges(): InterchangeResult {
     return this.#interchanges;
   }
 }

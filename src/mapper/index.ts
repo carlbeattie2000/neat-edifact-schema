@@ -2,6 +2,7 @@ import type { Message } from 'neat-edifact';
 import type EdifactSchema from '../schema/index.js';
 import type MappedMessage from './mapped_message.js';
 import StrictMapper from './strict_mapper.js';
+import NonStrictMapper from './nonStrict/index.js';
 
 export default class Mapper {
   #schema: EdifactSchema;
@@ -15,6 +16,6 @@ export default class Mapper {
       const strictMapper = new StrictMapper(this.#schema);
       return strictMapper.map(message);
     }
-    throw new Error('Not Implemented');
+    return new NonStrictMapper(this.#schema).map(message);
   }
 }

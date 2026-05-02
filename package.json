@@ -39,19 +39,20 @@
   "devDependencies": {
     "@eslint/compat": "^2.0.5",
     "@eslint/eslintrc": "^3.3.5",
-    "@eslint/js": "^9",
+    "@eslint/js": "^9.39.4",
     "@types/node": "^25.6.0",
-    "eslint": "^9",
+    "eslint": "^9.39.4",
     "eslint-config-airbnb-extended": "^3.1.0",
-    "globals": "^17.5.0",
+    "globals": "^17.6.0",
     "jiti": "^2.6.1",
     "nodemon": "^3.1.14",
+    "prettier": "^3.8.3",
     "tsx": "^4.21.0",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.59.0",
+    "typescript-eslint": "^8.59.1",
     "vitest": "^4.1.5"
   },
   "dependencies": {
-    "neat-edifact": "^0.1.1"
+    "neat-edifact": "^0.6.0"
   }
 }

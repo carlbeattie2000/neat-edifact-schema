@@ -53,7 +53,7 @@ export default class MappedMessage {
   }
 
   public getGroup(tag: string): MappedGroup | undefined {
-    return this.groups.get(tag)?.at(0)
+    return this.groups.get(tag)?.at(0);
   }
 
   public getGroups(tag: string): MappedGroup[] {

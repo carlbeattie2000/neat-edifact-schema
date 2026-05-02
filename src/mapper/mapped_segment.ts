@@ -2,7 +2,8 @@ import type { DataElement, Segment } from 'neat-edifact';
 
 export default class MappedSegment {
   public tag: string;
-  segment: Segment;
+
+  public segment: Segment;
 
   constructor(segment: Segment) {
     this.tag = segment.tag;

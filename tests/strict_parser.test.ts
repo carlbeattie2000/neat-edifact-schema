@@ -1,19 +1,20 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
+
+import SchemaMissingGroupError from '../src/errors/SchemaMissingGroupError.js';
+import SchemaMissingSegmentError from '../src/errors/SchemaMissingSegmentError.js';
+import SchemaOutOfOrderError from '../src/errors/SchemaOutOfOrderError.js';
+import SchemaRepeatLimitError from '../src/errors/SchemaRepeatLimitError.js';
+import Mapper from '../src/mapper/index.js';
 import {
-  defineSchema,
-  defineSegment,
   defineGroup,
   defineHead,
+  defineSchema,
+  defineSegment,
 } from '../src/schema/define.js';
+
 import type { Message, Segment } from 'neat-edifact';
-import Mapper from '../src/mapper/index.js';
-import SchemaMissingSegmentError from '../src/errors/SchemaMissingSegmentError.js';
-import SchemaRepeatLimitError from '../src/errors/SchemaRepeatLimitError.js';
-import SchemaMissingGroupError from '../src/errors/SchemaMissingGroupError.js';
-import SchemaOutOfOrderError from '../src/errors/SchemaOutOfOrderError.js';
 
 // ============= Test Helpers =============
-
 function createSegment(tag: string, values: string[]): Segment {
   return {
     tag,
@@ -21,8 +22,11 @@ function createSegment(tag: string, values: string[]): Segment {
       Value: v,
       getComponent: (idx: number) => ({ value: v.split(':')[idx] }),
     })),
-    getDataElement: function (index: number) {
+    getDataElement(index: number) {
       return this.dataElements[index];
+    },
+    getQualifier() {
+      return this.getDataElement(0)?.getComponent(0)?.value;
     },
   } as Segment;
 }

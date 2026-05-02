@@ -1,3 +1,5 @@
+import type { Segment } from 'neat-edifact';
+
 import type { SegmentOptions } from './types.js';
 import type MappedSegment from '../mapper/mapped_segment.js';
 
@@ -30,5 +32,17 @@ export default class SegmentDefinition {
     this.ignore = options?.ignore ?? false;
 
     this.transform = options?.transform ?? SegmentDefinition.#defaultTransformFunction;
+  }
+
+  public matchQualifier(segment: Segment): boolean {
+    if (!this.qualifier) {
+      return true;
+    }
+
+    return this.qualifier === segment.getQualifier();
+  }
+
+  public match(segment: Segment): boolean {
+    return segment.tag === this.tag && this.matchQualifier(segment);
   }
 }

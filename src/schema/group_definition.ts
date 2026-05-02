@@ -1,8 +1,9 @@
-import type MappedSegment from '../mapper/mapped_segment.js';
-import type HeadDefinition from './head_definition.js';
-import SegmentDefinition from './segment_definition.js';
+import type { Segment } from 'neat-edifact';
 
+import type HeadDefinition from './head_definition.js';
+import type SegmentDefinition from './segment_definition.js';
 import type { GroupOptions } from './types.js';
+import type MappedSegment from '../mapper/mapped_segment.js';
 
 export default class GroupDefinition {
   public tag: string;
@@ -22,6 +23,7 @@ export default class GroupDefinition {
   }
 
   public headDefinition: HeadDefinition;
+
   public definitions: (SegmentDefinition | GroupDefinition)[];
 
   constructor(tag: string, options?: GroupOptions) {
@@ -39,10 +41,17 @@ export default class GroupDefinition {
 
     this.ignore = options?.ignore ?? false;
 
-    this.transform =
-      options?.transform ?? GroupDefinition.#defaultTransformFunction;
+    this.transform = options?.transform ?? GroupDefinition.#defaultTransformFunction;
 
     this.headDefinition = options.head;
     this.definitions = options?.items ?? [];
+  }
+
+  public matchQualifier(segment: Segment): boolean {
+    return this.headDefinition.matchQualifier(segment);
+  }
+
+  public match(segment: Segment): boolean {
+    return this.headDefinition.match(segment);
   }
 }
