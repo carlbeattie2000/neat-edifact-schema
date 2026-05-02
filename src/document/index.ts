@@ -6,7 +6,7 @@ import Mapper from '../mapper/index.js';
 
 import type { InterchangeResult } from 'neat-edifact';
 
-import type MappedMessage from '../mapper/mapped_message.js';
+import type MappedMessage from '../mapper/mapped/mapped_message.js';
 import type EdifactSchema from '../schema/index.js';
 
 export default class EdifactDocument {

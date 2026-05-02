@@ -1,7 +1,7 @@
-import type GroupDefinition from './group_definition.js';
-import type HeadDefinition from './head_definition.js';
-import type SegmentDefinition from './segment_definition.js';
-import type MappedSegment from '../mapper/mapped_segment.js';
+import type GroupDefinition from './definitions/group_definition.js';
+import type HeadDefinition from './definitions/head_definition.js';
+import type SegmentDefinition from './definitions/segment_definition.js';
+import type MappedSegment from '../mapper/mapped/mapped_segment.js';
 
 export interface SegmentOptions {
   required?: boolean;

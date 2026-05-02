@@ -1,6 +1,6 @@
 import GroupDefinition from './group_definition.js';
 import HeadDefinition from './head_definition.js';
-import EdifactSchema from './index.js';
+import EdifactSchema from '../index.js';
 import SegmentDefinition from './segment_definition.js';
 
 import type {
@@ -8,7 +8,7 @@ import type {
   GroupOptions,
   HeadOptions,
   SegmentOptions,
-} from './types.js';
+} from '../types.js';
 
 export function defineSchema(config: DefineSchema): EdifactSchema {
   return new EdifactSchema(config);

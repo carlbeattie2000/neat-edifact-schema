@@ -6,7 +6,7 @@ import {
   defineGroup,
   defineSchema,
   defineSegment,
-} from '../src/schema/define.js';
+} from '../src/schema/definitions/define.js';
 
 import type { Message, Segment } from 'neat-edifact';
 

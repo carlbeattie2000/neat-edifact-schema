@@ -1,9 +1,9 @@
-import NonStrictMapper from './nonStrict/index.js';
-import StrictMapper from './strict_mapper.js';
+import NonStrictMapper from './non_strict/index.js';
+import StrictMapper from './strict/index.js';
 
 import type { Message } from 'neat-edifact';
 
-import type MappedMessage from './mapped_message.js';
+import type MappedMessage from './mapped/mapped_message.js';
 import type EdifactSchema from '../schema/index.js';
 
 export default class Mapper {

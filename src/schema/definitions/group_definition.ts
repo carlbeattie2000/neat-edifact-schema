@@ -1,9 +1,9 @@
 import type { Segment } from 'neat-edifact';
 
-import type HeadDefinition from './head_definition.js';
-import type SegmentDefinition from './segment_definition.js';
-import type { GroupOptions } from './types.js';
-import type MappedSegment from '../mapper/mapped_segment.js';
+import type HeadDefinition from '../head_definition.jsefinition.js';
+import type SegmentDefinition from '../segment_definition.jsefinition.js';
+import type { GroupOptions } from '../types.js';
+import type MappedSegment from '../../mapper/mapped/mapped_segment.js';
 
 export default class GroupDefinition {
   public tag: string;

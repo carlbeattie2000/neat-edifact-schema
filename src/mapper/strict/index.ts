@@ -1,25 +1,25 @@
-import Cursor from './cursor.js';
-import MappedGroup from './mapped_group.js';
-import MappedMessage from './mapped_message.js';
-import MappedSegment from './mapped_segment.js';
+import Cursor from '../cursor/cursor.js';
+import MappedGroup from '../mapped/mapped_group.js';
+import MappedMessage from '../mapped/mapped_message.js';
+import MappedSegment from '../mapped/mapped_segment.js';
 import {
   ConsumeOption,
 
-} from './types.js';
-import SchemaExtraSegmentError from '../errors/SchemaExtraSegmentError.js';
-import SchemaMissingGroupError from '../errors/SchemaMissingGroupError.js';
-import SchemaMissingSegmentError from '../errors/SchemaMissingSegmentError.js';
-import SchemaOutOfOrderError from '../errors/SchemaOutOfOrderError.js';
-import SchemaRepeatLimitError from '../errors/SchemaRepeatLimitError.js';
-import GroupDefinition from '../schema/group_definition.js';
-import HeadDefinition from '../schema/head_definition.js';
-import EdifactSchema from '../schema/index.js';
-import SegmentDefinition from '../schema/segment_definition.js';
-import { isZero } from '../utils.js';
+} from '../types.js';
+import SchemaExtraSegmentError from '../../errors/SchemaExtraSegmentError.js';
+import SchemaMissingGroupError from '../../errors/SchemaMissingGroupError.js';
+import SchemaMissingSegmentError from '../../errors/SchemaMissingSegmentError.js';
+import SchemaOutOfOrderError from '../../errors/SchemaOutOfOrderError.js';
+import SchemaRepeatLimitError from '../../errors/SchemaRepeatLimitError.js';
+import GroupDefinition from '../../schema/definitions/group_definition.js';
+import HeadDefinition from '../../schema/definitions/head_definition.js';
+import EdifactSchema from '../../schema/index.js';
+import SegmentDefinition from '../../schema/definitions/segment_definition.js';
+import { isZero } from '../../utils.js';
 
 import type { Message } from 'neat-edifact';
 
-import type { Definition, MessageItem, Store } from './types.js';
+import type { Definition, MessageItem, Store } from '../types.js';
 
 export default class StrictMapper {
   #schema: EdifactSchema;

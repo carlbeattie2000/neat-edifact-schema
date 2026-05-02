@@ -1,14 +1,12 @@
 import type { Segment } from 'neat-edifact';
 
-import type { SegmentOptions } from './types.js';
-import type MappedSegment from '../mapper/mapped_segment.js';
+import type { HeadOptions } from '../types.js';
+import type MappedSegment from '../../mapper/mapped/mapped_segment.js';
 
-export default class SegmentDefinition {
+export default class HeadDefinition {
   public tag: string;
 
   public required: boolean;
-
-  public repeatable: number;
 
   public qualifier: string;
 
@@ -20,18 +18,16 @@ export default class SegmentDefinition {
     return segment as T;
   }
 
-  constructor(tag: string, options?: SegmentOptions) {
+  constructor(tag: string, options?: HeadOptions) {
     this.tag = tag;
 
     this.required = options?.required ?? false;
-
-    this.repeatable = options?.repeatable ?? 1;
 
     this.qualifier = options?.qualifier ?? '';
 
     this.ignore = options?.ignore ?? false;
 
-    this.transform = options?.transform ?? SegmentDefinition.#defaultTransformFunction;
+    this.transform = options?.transform ?? HeadDefinition.#defaultTransformFunction;
   }
 
   public matchQualifier(segment: Segment): boolean {
