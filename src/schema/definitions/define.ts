@@ -3,21 +3,13 @@ import HeadDefinition from './head_definition.js';
 import EdifactSchema from '../index.js';
 import SegmentDefinition from './segment_definition.js';
 
-import type {
-  DefineSchema,
-  GroupOptions,
-  HeadOptions,
-  SegmentOptions,
-} from '../types.js';
+import type { DefineSchema, GroupOptions, HeadOptions, SegmentOptions } from '../types.js';
 
 export function defineSchema(config: DefineSchema): EdifactSchema {
   return new EdifactSchema(config);
 }
 
-export function defineSegment(
-  tag: string,
-  options: SegmentOptions,
-): SegmentDefinition {
+export function defineSegment(tag: string, options: SegmentOptions): SegmentDefinition {
   return new SegmentDefinition(tag, options);
 }
 

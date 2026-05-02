@@ -38,20 +38,14 @@ export default class EdifactDocument {
     };
   }
 
-  public static async fromFile(
-    path: string,
-    schema: EdifactSchema,
-  ): Promise<EdifactDocument> {
+  public static async fromFile(path: string, schema: EdifactSchema): Promise<EdifactDocument> {
     const fileContent = await readFile(path, 'utf-8');
     const interchanges = new Parser(fileContent, false).parse();
 
     return new EdifactDocument(interchanges, schema);
   }
 
-  public static fromString(
-    content: string,
-    schema: EdifactSchema,
-  ): EdifactDocument {
+  public static fromString(content: string, schema: EdifactSchema): EdifactDocument {
     const interchanges = new Parser(content, false).parse();
 
     return new EdifactDocument(interchanges, schema);
@@ -62,9 +56,7 @@ export default class EdifactDocument {
     const results: MappedMessage[] = [];
 
     this.#interchanges.all().forEach((interchange) => {
-      results.push(
-        ...interchange.messages.map((message) => mapper.map(message)),
-      );
+      results.push(...interchange.messages.map((message) => mapper.map(message)));
     });
 
     return results;

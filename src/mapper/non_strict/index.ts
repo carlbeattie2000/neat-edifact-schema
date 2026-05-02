@@ -1,9 +1,9 @@
+import SegmentIndexStore from './segments_store.js';
 import GroupDefinition from '../../schema/definitions/group_definition.js';
 import SegmentDefinition from '../../schema/definitions/segment_definition.js';
-import MappedMessage from '../mapped/mapped_message.js';
-import SegmentIndexStore from './segments_store.js';
 import { forEachRange } from '../../utils.js';
 import MappedGroup from '../mapped/mapped_group.js';
+import MappedMessage from '../mapped/mapped_message.js';
 import MappedSegment from '../mapped/mapped_segment.js';
 
 import type { Message, Segment } from 'neat-edifact';

@@ -1,7 +1,7 @@
 import type { Segment } from 'neat-edifact';
 
-import type { HeadOptions } from '../types.js';
 import type MappedSegment from '../../mapper/mapped/mapped_segment.js';
+import type { HeadOptions } from '../types.js';
 
 export default class HeadDefinition {
   public tag: string;

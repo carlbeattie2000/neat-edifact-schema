@@ -22,10 +22,10 @@ export interface MapperOptions {
   caseInsensitiveQualifiers?: boolean;
 
   /**
- * Maximum segments to scan for a single definition in non‑strict mode.
- * Prevents infinite loops on malformed messages.
- *
- * @default 1000
- */
+   * Maximum segments to scan for a single definition in non‑strict mode.
+   * Prevents infinite loops on malformed messages.
+   *
+   * @default 1000
+   */
   maxScanDistance?: number;
 }

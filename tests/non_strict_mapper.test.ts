@@ -1,12 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import SchemaRepeatLimitError from '../src/errors/SchemaRepeatLimitError.js';
 import Mapper from '../src/mapper/index.js';
-import {
-  defineGroup,
-  defineSchema,
-  defineSegment,
-} from '../src/schema/definitions/define.js';
+import { defineGroup, defineSchema, defineSegment } from '../src/schema/definitions/define.js';
 
 import type { Message, Segment } from 'neat-edifact';
 
@@ -64,10 +59,7 @@ describe('NonStrictMapper', () => {
 
     it('should map multiple segments regardless of order', () => {
       const schema = defineSchema({
-        items: [
-          defineSegment('BGM', { required: true }),
-          defineSegment('DTM', { required: true }),
-        ],
+        items: [defineSegment('BGM', { required: true }), defineSegment('DTM', { required: true })],
         strict: false,
       });
 

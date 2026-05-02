@@ -1,11 +1,3 @@
-import Cursor from '../cursor/cursor.js';
-import MappedGroup from '../mapped/mapped_group.js';
-import MappedMessage from '../mapped/mapped_message.js';
-import MappedSegment from '../mapped/mapped_segment.js';
-import {
-  ConsumeOption,
-
-} from '../types.js';
 import SchemaExtraSegmentError from '../../errors/SchemaExtraSegmentError.js';
 import SchemaMissingGroupError from '../../errors/SchemaMissingGroupError.js';
 import SchemaMissingSegmentError from '../../errors/SchemaMissingSegmentError.js';
@@ -13,9 +5,14 @@ import SchemaOutOfOrderError from '../../errors/SchemaOutOfOrderError.js';
 import SchemaRepeatLimitError from '../../errors/SchemaRepeatLimitError.js';
 import GroupDefinition from '../../schema/definitions/group_definition.js';
 import HeadDefinition from '../../schema/definitions/head_definition.js';
-import EdifactSchema from '../../schema/index.js';
 import SegmentDefinition from '../../schema/definitions/segment_definition.js';
+import EdifactSchema from '../../schema/index.js';
 import { isZero } from '../../utils.js';
+import Cursor from '../cursor/cursor.js';
+import MappedGroup from '../mapped/mapped_group.js';
+import MappedMessage from '../mapped/mapped_message.js';
+import MappedSegment from '../mapped/mapped_segment.js';
+import { ConsumeOption } from '../types.js';
 
 import type { Message } from 'neat-edifact';
 
@@ -44,10 +41,7 @@ export default class StrictMapper {
     return this.#cursor.segment.tag === definition.tag;
   }
 
-  private matchQualifier(
-    definition: Definition,
-    silent = false,
-  ): boolean {
+  private matchQualifier(definition: Definition, silent = false): boolean {
     if (!definition.qualifier) {
       return true;
     }
@@ -127,11 +121,7 @@ export default class StrictMapper {
       }
 
       if (counted > definition.repeatable) {
-        throw new SchemaRepeatLimitError(
-          definition.tag,
-          definition.repeatable,
-          counted,
-        );
+        throw new SchemaRepeatLimitError(definition.tag, definition.repeatable, counted);
       }
     }
 
@@ -139,9 +129,7 @@ export default class StrictMapper {
       let counted = 0;
 
       while (this.matchHead(definition) && this.#cursor.segment) {
-        const mappedGroup = new MappedGroup(
-          new MappedSegment(this.#cursor.segment),
-        );
+        const mappedGroup = new MappedGroup(new MappedSegment(this.#cursor.segment));
         this.handle(definition.headDefinition, mappedGroup);
         definition.definitions.forEach((childDefinition) => {
           this.handle(childDefinition, mappedGroup);
@@ -155,11 +143,7 @@ export default class StrictMapper {
       }
 
       if (counted > definition.repeatable) {
-        throw new SchemaRepeatLimitError(
-          definition.tag,
-          definition.repeatable,
-          counted,
-        );
+        throw new SchemaRepeatLimitError(definition.tag, definition.repeatable, counted);
       }
     }
 

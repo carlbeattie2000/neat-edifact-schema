@@ -59,9 +59,7 @@ describe('StrictMapper', () => {
         strict: true,
       });
 
-      const message = createMessage([
-        createSegment('DTM', ['137:20260101:201']),
-      ]);
+      const message = createMessage([createSegment('DTM', ['137:20260101:201'])]);
       const mapper = new Mapper(schema);
 
       expect(() => mapper.map(message)).toThrow(SchemaOutOfOrderError);
@@ -124,9 +122,7 @@ describe('StrictMapper', () => {
       const mapper = new Mapper(schema);
 
       expect(() => mapper.map(message)).toThrow(SchemaRepeatLimitError);
-      expect(() => mapper.map(message)).toThrow(
-        /LOC has a maxium repeat count of 2 but got 3/,
-      );
+      expect(() => mapper.map(message)).toThrow(/LOC has a maxium repeat count of 2 but got 3/);
     });
 
     it('should allow fewer than repeatable limit', () => {
@@ -294,10 +290,7 @@ describe('StrictMapper', () => {
   describe('Order enforcement', () => {
     it('should throw when segments out of order', () => {
       const schema = defineSchema({
-        items: [
-          defineSegment('BGM', { required: true }),
-          defineSegment('DTM', { required: true }),
-        ],
+        items: [defineSegment('BGM', { required: true }), defineSegment('DTM', { required: true })],
         strict: true,
       });
 
@@ -358,9 +351,7 @@ describe('StrictMapper', () => {
         strict: true,
       });
 
-      const message = createMessage([
-        createSegment('BGM', ['241', 'STOW123', '9']),
-      ]);
+      const message = createMessage([createSegment('BGM', ['241', 'STOW123', '9'])]);
       const mapper = new Mapper(schema);
       const result = mapper.map(message);
       const bgm = result.getSegment('BGM');
