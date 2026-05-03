@@ -1,6 +1,6 @@
 {
   "name": "neat-edifact-mapper",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "type": "module",
   "description": "Schema-based EDIFACT message mapper for neat-edifact. Define a schema, get back structured data.",
   "main": "./dist/index.js",
