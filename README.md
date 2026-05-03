@@ -1,11 +1,11 @@
-# neat-edifact-schema
+# neat-edifact-mapper
 A TypeScript schema mapper for UN/EDIFACT interchanges. Give it a raw EDIFACT string and a schema definition, get back a typed, queryable object. That's it.
 It handles the structure mapping layer only — no business logic, no transforms, no opinions about what your data means. If you need BAPLIE parsing with domain objects, build that on top of this.
 
 ## Install
 ```bash
-npm install neat-edifact-schema neat-edifact
-pnpm add neat-edifact-schema neat-edifact
+npm install neat-edifact-mapper
+pnpm add neat-edifact-mapper
 ```
 
 ## Usage
