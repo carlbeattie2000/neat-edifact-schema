@@ -101,7 +101,14 @@ export default class StrictMapper {
       let counted = 0;
 
       if (this.#cursor.segment && this.#cursor.segment.tag !== definition.tag) {
-        throw new SchemaOutOfOrderError();
+        if (definition.required) {
+          throw new SchemaOutOfOrderError();
+        }
+        return;
+      }
+
+      if (!this.#cursor.segment && definition.required) {
+        throw new SchemaMissingSegmentError();
       }
 
       while (this.matchHead(definition)) {

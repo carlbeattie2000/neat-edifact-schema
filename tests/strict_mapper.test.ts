@@ -439,4 +439,153 @@ describe('StrictMapper', () => {
       expect(result.getGroups('TDT')).toHaveLength(1);
     });
   });
+
+  describe('Optional segments', () => {
+    it('should skip optional segment when not present', () => {
+      const schema = defineSchema({
+        items: [
+          defineSegment('BGM', { required: true }),
+          defineSegment('DTM', { required: false }),
+          defineSegment('TDT', { required: true }),
+        ],
+        strict: true,
+      });
+
+      const message = createMessage([
+        createSegment('BGM', ['241', 'STOW123']),
+        createSegment('TDT', ['20', 'VOY123']),
+      ]);
+      const mapper = new Mapper(schema);
+      const result = mapper.map(message);
+
+      expect(result.getSegment('BGM')).toBeDefined();
+      expect(result.getSegment('DTM')).toBeUndefined();
+      expect(result.getSegment('TDT')).toBeDefined();
+    });
+
+    it('should map optional segment when present', () => {
+      const schema = defineSchema({
+        items: [
+          defineSegment('BGM', { required: true }),
+          defineSegment('DTM', { required: false }),
+          defineSegment('TDT', { required: true }),
+        ],
+        strict: true,
+      });
+
+      const message = createMessage([
+        createSegment('BGM', ['241', 'STOW123']),
+        createSegment('DTM', ['137:20260101:201']),
+        createSegment('TDT', ['20', 'VOY123']),
+      ]);
+      const mapper = new Mapper(schema);
+      const result = mapper.map(message);
+
+      expect(result.getSegment('DTM')).toBeDefined();
+      expect(result.getSegment('TDT')).toBeDefined();
+    });
+
+    it('should skip multiple consecutive optional segments when not present', () => {
+      const schema = defineSchema({
+        items: [
+          defineSegment('BGM', { required: true }),
+          defineSegment('DTM', { required: false }),
+          defineSegment('FTX', { required: false }),
+          defineSegment('TDT', { required: true }),
+        ],
+        strict: true,
+      });
+
+      const message = createMessage([
+        createSegment('BGM', ['241', 'STOW123']),
+        createSegment('TDT', ['20', 'VOY123']),
+      ]);
+      const mapper = new Mapper(schema);
+      const result = mapper.map(message);
+
+      expect(result.getSegment('DTM')).toBeUndefined();
+      expect(result.getSegment('FTX')).toBeUndefined();
+      expect(result.getSegment('TDT')).toBeDefined();
+    });
+
+    it('should skip optional segment inside a group when not present', () => {
+      const schema = defineSchema({
+        items: [
+          defineGroup({
+            head: defineHead('TDT', { required: true }),
+            items: [
+              defineSegment('LOC', { required: true }),
+              defineSegment('DTM', { required: false }),
+              defineSegment('RFF', { required: true }),
+            ],
+            required: true,
+          }),
+        ],
+        strict: true,
+      });
+
+      const message = createMessage([
+        createSegment('TDT', ['20', 'VOY123']),
+        createSegment('LOC', ['5', 'GBSOU']),
+        createSegment('RFF', ['VON:VOY001']),
+      ]);
+      const mapper = new Mapper(schema);
+      const result = mapper.map(message);
+
+      const group = result.getGroups('TDT')[0];
+      expect(group.getSegment('LOC')).toBeDefined();
+      expect(group.getSegment('DTM')).toBeUndefined();
+      expect(group.getSegment('RFF')).toBeDefined();
+    });
+
+    it('should skip all optional segments inside a group when none present', () => {
+      const schema = defineSchema({
+        items: [
+          defineGroup({
+            head: defineHead('LOC', { required: true }),
+            items: [
+              defineSegment('GID', { required: false }),
+              defineSegment('GDS', { required: false }),
+              defineSegment('FTX', { required: false }),
+              defineSegment('MEA', { required: true }),
+              defineSegment('RFF', { required: true }),
+            ],
+            required: true,
+          }),
+        ],
+        strict: true,
+      });
+
+      const message = createMessage([
+        createSegment('LOC', ['147', '020102']),
+        createSegment('MEA', ['WT', 'G', 'KGM:24500']),
+        createSegment('RFF', ['BN:MBOL123456']),
+      ]);
+      const mapper = new Mapper(schema);
+      const result = mapper.map(message);
+
+      const group = result.getGroups('LOC')[0];
+      expect(group.getSegment('GID')).toBeUndefined();
+      expect(group.getSegment('GDS')).toBeUndefined();
+      expect(group.getSegment('FTX')).toBeUndefined();
+      expect(group.getSegment('MEA')).toBeDefined();
+      expect(group.getSegment('RFF')).toBeDefined();
+    });
+
+    it('should throw missing segment error not out of order when required segment absent', () => {
+      const schema = defineSchema({
+        items: [
+          defineSegment('BGM', { required: true }),
+          defineSegment('DTM', { required: false }),
+          defineSegment('TDT', { required: true }),
+        ],
+        strict: true,
+      });
+
+      const message = createMessage([createSegment('BGM', ['241', 'STOW123'])]);
+      const mapper = new Mapper(schema);
+
+      expect(() => mapper.map(message)).toThrow(SchemaMissingSegmentError);
+    });
+  });
 });
